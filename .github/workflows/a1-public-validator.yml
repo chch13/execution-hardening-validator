@@ -56,3 +56,5 @@ jobs:
             material_predicate_raw_result.json
             a1_public_acceptance_receipt.json
           if-no-files-found: error
+
+# bootstrap trigger: public hosted validator v1
