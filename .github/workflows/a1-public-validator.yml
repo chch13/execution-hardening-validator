@@ -9,6 +9,8 @@ on:
       - 'tools/material_predicate_acceptance.py'
       - 'tools/github_actions_visibility_self_test.py'
       - 'tools/public_a1_adjudicator.py'
+      - 'tools/execution_hardening_b0_infrastructure.py'
+      - 'tools/execution_hardening_b0_infrastructure_self_test.py'
       - '.github/workflows/a1-public-validator.yml'
   workflow_dispatch:
 
@@ -55,6 +57,23 @@ jobs:
             api_visibility_receipt.json
             material_predicate_raw_result.json
             a1_public_acceptance_receipt.json
+          if-no-files-found: error
+
+  b0-infrastructure-self-test:
+    needs: a1-material-predicate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout validator revision
+        uses: actions/checkout@v4
+
+      - name: B0 fail-closed infrastructure self-test
+        run: python tools/execution_hardening_b0_infrastructure_self_test.py | tee b0_infrastructure_self_test.txt
+
+      - name: Publish B0 infrastructure self-test log
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-hardening-b0-infrastructure-${{ github.run_id }}-${{ github.run_attempt }}
+          path: b0_infrastructure_self_test.txt
           if-no-files-found: error
 
 # bootstrap trigger: public hosted validator v1
