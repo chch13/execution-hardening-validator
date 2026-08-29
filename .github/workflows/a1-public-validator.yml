@@ -13,6 +13,8 @@ on:
       - 'tools/execution_hardening_b0_infrastructure_self_test.py'
       - 'tools/execution_hardening_raw_tree_scanner.py'
       - 'tools/execution_hardening_raw_tree_scanner_self_test.py'
+      - 'tools/execution_hardening_structural_acceptance.py'
+      - 'tools/execution_hardening_structural_acceptance_self_test.py'
       - '.github/workflows/a1-public-validator.yml'
   workflow_dispatch:
 
@@ -93,6 +95,23 @@ jobs:
         with:
           name: execution-hardening-b0-raw-tree-scanner-${{ github.run_id }}-${{ github.run_attempt }}
           path: b0_raw_tree_scanner_self_test.txt
+          if-no-files-found: error
+
+  b0-structural-route-self-test:
+    needs: b0-raw-tree-scanner-self-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout validator revision
+        uses: actions/checkout@v4
+
+      - name: Public-validator pointer structural self-test
+        run: python tools/execution_hardening_structural_acceptance_self_test.py | tee b0_structural_route_self_test.txt
+
+      - name: Publish structural route self-test log
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-hardening-b0-structural-route-${{ github.run_id }}-${{ github.run_attempt }}
+          path: b0_structural_route_self_test.txt
           if-no-files-found: error
 
 # bootstrap trigger: public hosted validator v1
