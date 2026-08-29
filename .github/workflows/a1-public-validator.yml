@@ -1,0 +1,58 @@
+name: A1 Public Execution Hardening Validator
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'source_manifest.json'
+      - 'tools/execution_hardening_kernel.py'
+      - 'tools/material_predicate_acceptance.py'
+      - 'tools/github_actions_visibility_self_test.py'
+      - 'tools/public_a1_adjudicator.py'
+      - '.github/workflows/a1-public-validator.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  api-visibility-canary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Non-material visibility canary
+        run: echo API_VISIBILITY_CANARY_OK
+
+  a1-material-predicate:
+    needs: api-visibility-canary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout validator revision
+        uses: actions/checkout@v4
+
+      - name: Verify GitHub Actions API visibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/github_actions_visibility_self_test.py --output api_visibility_receipt.json
+
+      - name: Material predicate adversarial acceptance
+        run: python tools/material_predicate_acceptance.py --output material_predicate_raw_result.json
+
+      - name: Source-aware A1 adjudication
+        run: >-
+          python tools/public_a1_adjudicator.py
+          --manifest source_manifest.json
+          --raw-result material_predicate_raw_result.json
+          --api-visibility api_visibility_receipt.json
+          --output a1_public_acceptance_receipt.json
+
+      - name: Publish A1 receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-hardening-a1-public-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            source_manifest.json
+            api_visibility_receipt.json
+            material_predicate_raw_result.json
+            a1_public_acceptance_receipt.json
+          if-no-files-found: error
