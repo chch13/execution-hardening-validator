@@ -1,0 +1,16 @@
+{
+  "schema_version": "execution-hardening-public-source-manifest/v1",
+  "source_repository": "chch13/-",
+  "source_commit_sha": "286007f8e568c4019e9d0364c50385b91efd3d60",
+  "files": {
+    "tools/execution_hardening_kernel.py": {
+      "blob_sha": "09d55539343c442bc9db27a640e3d7ecfe24f1a1"
+    },
+    "tools/material_predicate_acceptance.py": {
+      "blob_sha": "cfb88c6a18801edb07e2c45be935dca66387b814"
+    },
+    "tools/github_actions_visibility_self_test.py": {
+      "blob_sha": "0c77de2690d3484bc36987425dfcfdc6e09fcd76"
+    }
+  }
+}
