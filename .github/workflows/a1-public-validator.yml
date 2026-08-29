@@ -15,6 +15,7 @@ on:
       - 'tools/execution_hardening_raw_tree_scanner_self_test.py'
       - 'tools/execution_hardening_structural_acceptance.py'
       - 'tools/execution_hardening_structural_acceptance_self_test.py'
+      - 'tools/execution_hardening_b1_meta_acceptance.py'
       - '.github/workflows/a1-public-validator.yml'
   workflow_dispatch:
 
@@ -112,6 +113,23 @@ jobs:
         with:
           name: execution-hardening-b0-structural-route-${{ github.run_id }}-${{ github.run_attempt }}
           path: b0_structural_route_self_test.txt
+          if-no-files-found: error
+
+  b1-meta-acceptance:
+    needs: b0-structural-route-self-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout validator revision
+        uses: actions/checkout@v4
+
+      - name: B1 production-bound meta acceptance
+        run: python tools/execution_hardening_b1_meta_acceptance.py --output b1_meta_acceptance_receipt.json
+
+      - name: Publish B1 meta acceptance receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-hardening-b1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: b1_meta_acceptance_receipt.json
           if-no-files-found: error
 
 # bootstrap trigger: public hosted validator v1
